@@ -3,6 +3,9 @@
 .env.local
 .env.*.local
 
+# SSH keys
+*.pem
+
 # Dependencies
 node_modules/
 .pnp
