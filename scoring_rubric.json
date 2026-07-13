@@ -1,0 +1,47 @@
+{
+  "dimensions": [
+    {
+      "name": "budget",
+      "weight": 25,
+      "min_score": 0,
+      "max_score": 10,
+      "description": "Does the lead have budget aligned with our pricing?"
+    },
+    {
+      "name": "authority",
+      "weight": 20,
+      "min_score": 0,
+      "max_score": 10,
+      "description": "Is the lead a decision-maker or has access to one?"
+    },
+    {
+      "name": "need",
+      "weight": 20,
+      "min_score": 0,
+      "max_score": 10,
+      "description": "How strong is the pain point or need for our solution?"
+    },
+    {
+      "name": "timeline",
+      "weight": 15,
+      "min_score": 0,
+      "max_score": 10,
+      "description": "How urgent is the purchase timeline?"
+    },
+    {
+      "name": "company_fit",
+      "weight": 10,
+      "min_score": 0,
+      "max_score": 10,
+      "description": "Does the lead's company fit our ideal customer profile?"
+    },
+    {
+      "name": "engagement",
+      "weight": 10,
+      "min_score": 0,
+      "max_score": 10,
+      "description": "How engaged has the lead been during the conversation?"
+    }
+  ],
+  "weights_sum": 100
+}
