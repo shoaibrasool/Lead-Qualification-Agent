@@ -41,5 +41,6 @@ build/
 *.tsbuildinfo
 
 # Project files
+AGENTS.md
 plan.md
 specs/
