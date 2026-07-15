@@ -32,6 +32,12 @@ def get_model() -> ChatGoogleGenerativeAI:
         _model = ChatGoogleGenerativeAI(
             model=settings.gemini_model,
             api_key=settings.gemini_api_key.get_secret_value(),
+            safety_settings={
+                "HARM_CATEGORY_HARASSMENT": "BLOCK_ONLY_HIGH",
+                "HARM_CATEGORY_HATE_SPEECH": "BLOCK_ONLY_HIGH",
+                "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_ONLY_HIGH",
+                "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_ONLY_HIGH",
+            },
         )
     return _model
 
