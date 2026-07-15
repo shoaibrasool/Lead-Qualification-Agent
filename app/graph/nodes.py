@@ -5,6 +5,7 @@ import logging
 
 from langchain_core.messages import AIMessage
 
+from app.config import get_settings
 from app.graph.state import LeadState
 
 logger = logging.getLogger(__name__)
@@ -109,3 +110,26 @@ def collect_info_node(state: LeadState) -> dict:
         updates["complete"] = False
 
     return updates
+
+
+def score_lead_node(state: LeadState) -> dict:
+    from app.services.scoring import score_lead
+
+    fields = state.get("collected_fields", {})
+    turn_count = state.get("turn_count", 0)
+    result = score_lead(fields, turn_count)
+    score = result["total_score"]
+    settings = get_settings()
+
+    if score >= settings.auto_book_threshold:
+        outcome = "qualified"
+    elif score >= settings.flag_followup_threshold:
+        outcome = "maybe"
+    else:
+        outcome = "declined"
+
+    return {
+        "score": score,
+        "outcome": outcome,
+        "score_breakdown": result["dimensions"],
+    }
