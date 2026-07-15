@@ -151,25 +151,40 @@ def _get_last_user_message(state: LeadState) -> str:
 
 def _pick_slot_from_response(user_text: str, slots: list[dict]) -> dict | None:
     text_lower = user_text.lower().strip()
+    import re
+
+    if not slots:
+        return None
 
     for slot in slots:
         time_str = slot.get("start", slot.get("time", ""))
         if time_str and time_str in user_text:
             return slot
 
-    import re
+    formatted_texts = [
+        _format_slot_option(i + 1, s).split(". ", 1)[-1].lower()
+        for i, s in enumerate(slots)
+    ]
+    for idx, fmt in enumerate(formatted_texts):
+        if fmt in text_lower:
+            return slots[idx]
+
+    if re.search(r'\b(last|final)\b', text_lower):
+        return slots[-1]
+
     match = re.search(r"\b([1-3])\b", text_lower)
     if match:
         idx = int(match.group(1)) - 1
         if 0 <= idx < len(slots):
             return slots[idx]
 
-    if text_lower in ("first", "1st", "1"):
-        return slots[0] if slots else None
-    if text_lower in ("second", "2nd", "2"):
-        return slots[1] if len(slots) > 1 else None
-    if text_lower in ("third", "3rd", "3"):
-        return slots[2] if len(slots) > 2 else None
+    words = ["first", "1st", "second", "2nd", "third", "3rd"]
+    for i, word in enumerate(words[:3]):
+        if re.search(rf'\b{re.escape(word)}\b', text_lower):
+            return slots[i] if i < len(slots) else slots[-1]
+    for i, word in enumerate(words[3:]):
+        if re.search(rf'\b{re.escape(word)}\b', text_lower):
+            return slots[i + 3] if i + 3 < len(slots) else slots[-1]
 
     return None
 
