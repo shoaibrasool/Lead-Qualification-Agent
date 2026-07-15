@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    force=True,
+)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage
@@ -112,11 +118,28 @@ def create_app() -> FastAPI:
         done = outcome is not None and pending_slots is None and pending_selected is None
         booking_link = result.get("booking_link")
 
+        debug = {
+            "outcome": outcome,
+            "score": result.get("score"),
+            "score_breakdown": result.get("score_breakdown"),
+            "complete": result.get("complete"),
+            "turn_count": result.get("turn_count"),
+            "collected_fields": result.get("collected_fields"),
+            "booking_error": result.get("booking_error"),
+        }
+
+        logger.info(
+            "Session=%s outcome=%s score=%s complete=%s turn=%d",
+            body.session_id, outcome, result.get("score"),
+            result.get("complete"), result.get("turn_count", 0),
+        )
+
         return ChatResponse(
             reply=reply,
             session_id=body.session_id,
             done=done,
             booking_link=booking_link,
+            debug=debug,
         )
 
     return app
