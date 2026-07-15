@@ -5,7 +5,14 @@ from typing import Literal
 from langgraph.graph import END
 
 from app.config import get_settings
+from app.graph.nodes import _has_ai_reply
 from app.graph.state import LeadState
+
+
+def route_start(state: LeadState) -> Literal["greet", "collect_info"]:
+    if _has_ai_reply(state.get("messages", [])):
+        return "collect_info"
+    return "greet"
 
 
 def route_after_collect(state: LeadState) -> Literal["score_lead", "__end__"]:
