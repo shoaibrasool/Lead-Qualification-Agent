@@ -10,10 +10,10 @@ from app.graph.state import LeadState
 
 
 def route_start(state: LeadState) -> Literal["greet", "collect_info", "book_demo", "__end__"]:
-    if state.get("outcome"):
-        return END
     if state.get("pending_slots") or state.get("pending_selected_slot"):
         return "book_demo"
+    if state.get("outcome"):
+        return END
     if _has_ai_reply(state.get("messages", [])):
         return "collect_info"
     return "greet"
@@ -30,14 +30,14 @@ def route_after_collect(state: LeadState) -> Literal["score_lead", "__end__"]:
     return END
 
 
-def route_after_score(state: LeadState) -> Literal["book_demo", "notify_slack", "__end__"]:
+def route_after_score(state: LeadState) -> Literal["book_demo", "notify_slack", "end", "__end__"]:
     score = state.get("score") or 0
     settings = get_settings()
     if score >= settings.auto_book_threshold:
         return "book_demo"
     elif score >= settings.flag_followup_threshold:
         return "notify_slack"
-    return END
+    return "end"
 
 
 def route_after_booking(state: LeadState) -> Literal["notify_slack", "__end__"]:
