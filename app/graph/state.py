@@ -14,3 +14,4 @@ class LeadState(TypedDict):
     outcome: str | None
     turn_count: int
     booking_link: str | None
+    complete: bool
