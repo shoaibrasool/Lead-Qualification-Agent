@@ -15,3 +15,4 @@ class LeadState(TypedDict):
     turn_count: int
     booking_link: str | None
     complete: bool
+    score_breakdown: list[dict] | None
