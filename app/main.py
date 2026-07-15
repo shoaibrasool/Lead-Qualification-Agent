@@ -15,37 +15,27 @@ logging.basicConfig(
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.mongodb import MongoDBSaver
 
 from app.config import get_settings
 from app.database import close_db, get_client, init_db
 from app.graph.agent import build_graph
-from app.models import ChatRequest, ChatResponse
+from app.routes.chat import router as chat_router
 
 logger = logging.getLogger(__name__)
-
-_graph_instance = None
-
-
-def get_graph():
-    global _graph_instance
-    return _graph_instance
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _graph_instance
-
     try:
         init_db()
         client = get_client()
         checkpointer = MongoDBSaver(client)
-        _graph_instance = build_graph(checkpointer)
+        app.state.graph = build_graph(checkpointer)
         logger.info("MongoDB checkpointer connected and graph compiled")
     except Exception as e:
         logger.warning("MongoDB unavailable, running without persistence: %s", e)
-        _graph_instance = build_graph(None)
+        app.state.graph = build_graph(None)
 
     yield
 
@@ -71,76 +61,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    @app.get("/health")
-    async def health():
-        return {"status": "ok"}
-
-    @app.post("/chat", response_model=ChatResponse)
-    async def chat(body: ChatRequest):
-        graph = get_graph()
-        config = {"configurable": {"thread_id": body.session_id}}
-
-        try:
-            current = graph.get_state(config)
-            has_state = current is not None and len(current.values.get("messages", [])) > 0
-        except Exception:
-            has_state = False
-
-        if has_state:
-            result = await graph.ainvoke(
-                {"messages": [HumanMessage(content=body.message)]},
-                config,
-            )
-        else:
-            result = await graph.ainvoke(
-                {
-                    "messages": [HumanMessage(content=body.message)],
-                    "session_id": body.session_id,
-                    "collected_fields": {},
-                    "score": None,
-                    "outcome": None,
-                    "turn_count": 0,
-                    "booking_link": None,
-                    "complete": False,
-                    "score_breakdown": None,
-                    "pending_slots": None,
-                    "pending_selected_slot": None,
-                    "booking_error": None,
-                },
-                config,
-            )
-
-        messages = result.get("messages", [])
-        reply = messages[-1].content if messages else ""
-        outcome = result.get("outcome")
-        pending_slots = result.get("pending_slots")
-        pending_selected = result.get("pending_selected_slot")
-        done = outcome is not None and pending_slots is None and pending_selected is None
-        booking_link = result.get("booking_link")
-
-        debug = {
-            "outcome": outcome,
-            "score": result.get("score"),
-            "score_breakdown": result.get("score_breakdown"),
-            "complete": result.get("complete"),
-            "turn_count": result.get("turn_count"),
-            "collected_fields": result.get("collected_fields"),
-            "booking_error": result.get("booking_error"),
-        }
-
-        logger.info(
-            "Session=%s outcome=%s score=%s complete=%s turn=%d",
-            body.session_id, outcome, result.get("score"),
-            result.get("complete"), result.get("turn_count", 0),
-        )
-
-        return ChatResponse(
-            reply=reply,
-            session_id=body.session_id,
-            done=done,
-            booking_link=booking_link,
-            debug=debug,
-        )
+    app.include_router(chat_router)
 
     return app
 

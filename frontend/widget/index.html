@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lead Qualifier Widget — Test Page</title>
+  <link rel="stylesheet" href="widget.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1e293b;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #475569;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lead Qualification Widget</h1>
+    <p>Test page for the floating chat widget. Click the bubble in the bottom-right corner to start a conversation.</p>
+
+    <div class="card">
+      <h3>Using the widget</h3>
+      <ol>
+        <li>Click the chat bubble (bottom-right)</li>
+        <li>Type a message and press Enter or click the send button</li>
+        <li>Watch for the typing indicator while the bot responds</li>
+        <li>If time slots appear, click one to select it</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>API endpoint</h3>
+      <p>The widget sends POST requests to <code>/chat</code> with:</p>
+      <pre>{
+  "session_id": "&lt;auto-generated&gt;",
+  "message": "your message"
+}</pre>
+    </div>
+  </div>
+
+  <script src="widget.js" data-api-url="/chat"></script>
+</body>
+</html>
