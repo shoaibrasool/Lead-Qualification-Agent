@@ -40,6 +40,7 @@ def build_graph(checkpointer: Optional[MongoDBSaver]):
     builder.add_conditional_edges("score_lead", route_after_score, {
         "book_demo": "book_demo",
         "notify_slack": "notify_slack",
+        "end": "end",
         END: END,
     })
     builder.add_conditional_edges("book_demo", route_after_booking, {
