@@ -316,7 +316,7 @@
 
   LeadQualWidget.prototype._addWelcomeMessage = function () {
     if (this._welcomed) return;
-    this._addMessage('Hello! I\u2019m here to help qualify your interest. What brings you here today?', 'bot');
+    this._addMessage('Hello there!', 'bot');
     this._welcomed = true;
   };
 
