@@ -9,7 +9,9 @@ from app.graph.nodes import _has_ai_reply
 from app.graph.state import LeadState
 
 
-def route_start(state: LeadState) -> Literal["greet", "collect_info", "book_demo"]:
+def route_start(state: LeadState) -> Literal["greet", "collect_info", "book_demo", "__end__"]:
+    if state.get("outcome"):
+        return END
     if state.get("pending_slots") or state.get("pending_selected_slot"):
         return "book_demo"
     if _has_ai_reply(state.get("messages", [])):
