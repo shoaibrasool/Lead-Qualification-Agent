@@ -6,27 +6,41 @@
     API_URL = script.dataset.apiUrl;
   }
 
-  var TIMES_RE = /\b(\d{1,2}:\d{2})\s*(AM|PM|am|pm)?\b/g;
+  var SLOT_RE = /^\d+\.\s+(.+)$/gm;
 
-  var cssText = document.querySelector('link[href*="widget.css"]');
+  var cssLink = document.querySelector('link[href*="widget.css"]');
   function loadCSS() {
-    if (cssText) {
+    if (!cssLink) return '';
+    try {
       var req = new XMLHttpRequest();
-      req.open('GET', cssText.href, false);
+      req.open('GET', cssLink.href, false);
       req.send();
       return req.responseText;
+    } catch (e) {
+      return '';
     }
-    return '';
+  }
+
+  function genUUID() {
+    try { return crypto.randomUUID(); } catch (e) {}
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
   }
 
   function LeadQualWidget() {
     var stored = sessionStorage.getItem(STORAGE_KEY);
-    this.sessionId = stored || crypto.randomUUID();
+    this.sessionId = stored || genUUID();
     sessionStorage.setItem(STORAGE_KEY, this.sessionId);
     this.open = false;
     this.waiting = false;
-    this._render();
-    this._bind();
+    try {
+      this._render();
+      this._bind();
+    } catch (e) {
+      console.error('LeadQualWidget init failed:', e);
+    }
   }
 
   LeadQualWidget.prototype._render = function () {
@@ -45,7 +59,9 @@
       '.lq-panel{position:fixed;bottom:24px;right:24px;width:380px;height:520px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:none;flex-direction:column;z-index:999999;overflow:hidden;animation:lq-slideUp .25s ease-out}' +
       '.lq-panel.lq-open{display:flex}' +
       '@keyframes lq-slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}' +
-      '.lq-header{background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;padding:16px 20px;flex-shrink:0}' +
+      '.lq-header{background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;padding:14px 16px;flex-shrink:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}' +
+      '.lq-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:2px 4px;line-height:1;opacity:.8;transition:opacity .15s;flex-shrink:0}' +
+      '.lq-close:hover{opacity:1}' +
       '.lq-header-title{font-size:16px;font-weight:600}' +
       '.lq-header-sub{font-size:12px;opacity:.85;margin-top:2px}' +
       '.lq-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f8fafc}' +
@@ -94,8 +110,11 @@
     var header = document.createElement('div');
     header.className = 'lq-header';
     header.innerHTML =
+      '<div>' +
       '<div class="lq-header-title">Lead Qualifier</div>' +
-      '<div class="lq-header-sub">We typically respond in seconds</div>';
+      '<div class="lq-header-sub">We typically respond in seconds</div>' +
+      '</div>' +
+      '<button class="lq-close" aria-label="Close chat">\u2715</button>';
     panel.appendChild(header);
 
     var messages = document.createElement('div');
@@ -127,13 +146,19 @@
     send.innerHTML = '\u25B6';
     inputArea.appendChild(send);
 
-    return { bubble: bubble, panel: panel, messages: messages, typing: typing, input: input, send: send };
+    var closeBtn = header.querySelector('.lq-close');
+
+    return { bubble: bubble, panel: panel, messages: messages, typing: typing, input: input, send: send, close: closeBtn };
   };
 
   LeadQualWidget.prototype._bind = function () {
     var self = this;
     this.el.bubble.addEventListener('click', function () {
       self._toggle(true);
+    });
+
+    this.el.close.addEventListener('click', function () {
+      self._toggle(false);
     });
 
     this.el.send.addEventListener('click', function () {
@@ -209,6 +234,12 @@
       this._renderSlotButtons(times);
     }
 
+    if (data.done) {
+      this.el.input.disabled = true;
+      this.el.send.disabled = true;
+      this.el.input.placeholder = 'Conversation ended';
+    }
+
     this._scrollBottom();
   };
 
@@ -238,9 +269,9 @@
   LeadQualWidget.prototype._extractTimes = function (text) {
     var results = [];
     var match;
-    while ((match = TIMES_RE.exec(text)) !== null) {
-      var time = match[1] + (match[2] ? ' ' + match[2].toUpperCase() : '');
-      results.push(time);
+    SLOT_RE.lastIndex = 0;
+    while ((match = SLOT_RE.exec(text)) !== null) {
+      results.push(match[1]);
     }
     return results;
   };
@@ -289,9 +320,17 @@
     this._welcomed = true;
   };
 
+  function init() {
+    try {
+      new LeadQualWidget();
+    } catch (e) {
+      console.error('LeadQualWidget init failed:', e);
+    }
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { new LeadQualWidget(); });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    new LeadQualWidget();
+    init();
   }
 })();
