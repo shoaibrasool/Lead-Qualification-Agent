@@ -82,6 +82,9 @@ def collect_info_node(state: LeadState) -> dict:
     messages = state.get("messages", [])
     response = generate_response(messages, system_prompt=SYSTEM_PROMPT)
 
+    if isinstance(response, list):
+        response = " ".join(part.get("text", "") for part in response if isinstance(part, dict))
+
     turn_count = state.get("turn_count", 0) + 1
 
     if not response.strip():

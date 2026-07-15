@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     )
 
     gemini_api_key: SecretStr
-    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_model: str = "gemini-3.1-flash-lite"
     calcom_api_key: SecretStr
     calcom_event_type_id: int
     slack_webhook_url: SecretStr
