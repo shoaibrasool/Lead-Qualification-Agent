@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     slack_webhook_url: SecretStr
     mongodb_connection_string: SecretStr
 
-    auto_book_threshold: int = Field(default=70, ge=0, le=100)
+    auto_book_threshold: int = Field(default=60, ge=0, le=100)
     flag_followup_threshold: int = Field(default=40, ge=0, le=100)
     max_conversation_turns: int = Field(default=8, ge=1, le=100)
 

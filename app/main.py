@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    force=True,
+)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage
@@ -81,12 +87,12 @@ def create_app() -> FastAPI:
             has_state = False
 
         if has_state:
-            result = graph.invoke(
+            result = await graph.ainvoke(
                 {"messages": [HumanMessage(content=body.message)]},
                 config,
             )
         else:
-            result = graph.invoke(
+            result = await graph.ainvoke(
                 {
                     "messages": [HumanMessage(content=body.message)],
                     "session_id": body.session_id,
@@ -96,20 +102,44 @@ def create_app() -> FastAPI:
                     "turn_count": 0,
                     "booking_link": None,
                     "complete": False,
+                    "score_breakdown": None,
+                    "pending_slots": None,
+                    "pending_selected_slot": None,
+                    "booking_error": None,
                 },
                 config,
             )
 
         messages = result.get("messages", [])
         reply = messages[-1].content if messages else ""
-        done = result.get("outcome") is not None
+        outcome = result.get("outcome")
+        pending_slots = result.get("pending_slots")
+        pending_selected = result.get("pending_selected_slot")
+        done = outcome is not None and pending_slots is None and pending_selected is None
         booking_link = result.get("booking_link")
+
+        debug = {
+            "outcome": outcome,
+            "score": result.get("score"),
+            "score_breakdown": result.get("score_breakdown"),
+            "complete": result.get("complete"),
+            "turn_count": result.get("turn_count"),
+            "collected_fields": result.get("collected_fields"),
+            "booking_error": result.get("booking_error"),
+        }
+
+        logger.info(
+            "Session=%s outcome=%s score=%s complete=%s turn=%d",
+            body.session_id, outcome, result.get("score"),
+            result.get("complete"), result.get("turn_count", 0),
+        )
 
         return ChatResponse(
             reply=reply,
             session_id=body.session_id,
             done=done,
             booking_link=booking_link,
+            debug=debug,
         )
 
     return app

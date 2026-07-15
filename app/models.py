@@ -15,6 +15,7 @@ class ChatResponse(BaseModel):
     session_id: str
     done: bool = False
     booking_link: str | None = None
+    debug: dict | None = None
 
 
 class LeadInDB(BaseModel):

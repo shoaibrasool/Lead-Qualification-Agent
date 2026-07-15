@@ -5,12 +5,12 @@
       "type": "bucketed_threshold",
       "input": "budget",
       "buckets": [
-        { "match": ["20k", "25k", "30k", "50k", "large", "enterprise", "20k+", "25k+", "30k+", "50k+"], "score": 10 },
+        { "match": ["million", "million+", "lakh", "crore", "1m", "5m", "10m", "20k", "25k", "30k", "50k", "large", "enterprise", "20k+", "25k+", "30k+", "50k+"], "score": 10 },
         { "match": ["10k", "10-20k", "10k to 20k", "15k", "20k", "significant"], "score": 7 },
         { "match": ["5k", "5-10k", "5k to 10k", "10k", "moderate"], "score": 5 },
         { "match": ["under 5k", "less than 5k", "~5k", "around 5k", "small", "budget"], "score": 2 }
       ],
-      "default_score": 1
+      "default_score": 3
     },
     "authority": {
       "weight": 20,
@@ -37,7 +37,7 @@
       "input": "need",
       "levels": [
         { "match": ["urgent", "immediately", "asap", "critical", "essential", "must have", "requirement", "crucial", "top priority"], "score": 10 },
-        { "match": ["looking for", "exploring", "interested in", "evaluating", "considering", "would like", "want to", "hoping to", "need", "looking"], "score": 6 },
+        { "match": ["looking for", "exploring", "interested in", "evaluating", "considering", "would like", "want to", "hoping to", "need", "looking", "automate", "workflow", "streamline", "optimize", "efficiency", "productivity", "integrate", "reduce", "improve", "solve"], "score": 6 },
         { "match": ["just browsing", "curious", "maybe", "sometime", "eventually", "not sure", "general", "browsing"], "score": 2 }
       ],
       "default_score": 3
@@ -47,7 +47,7 @@
       "type": "bucketed_threshold",
       "input": "timeline",
       "buckets": [
-        { "match": ["this month", "this week", "immediately", "asap", "urgent", "now", "1 month", "2 month", "30 days", "days", "weeks"], "score": 10 },
+        { "match": ["this month", "this week", "immediately", "asap", "urgent", "now", "1 month", "2 month", "30 days", "days", "weeks", "less than", "< 2", "< 3", "under 2", "under 3"], "score": 10 },
         { "match": ["3 month", "quarter", "next quarter", "90 days", "months"], "score": 7 },
         { "match": ["6 month", "this year", "end of year"], "score": 5 },
         { "match": ["12 month", "year", "next year", "1 year"], "score": 3 }
@@ -59,10 +59,10 @@
       "type": "bucketed_threshold",
       "input": "company_size",
       "buckets": [
-        { "match": ["51-200", "50-200", "200", "established", "51", "100", "150"], "score": 10 },
+        { "match": ["51-200", "50-200", "200", "established", "51", "100", "150", "150+"], "score": 10 },
         { "match": ["201-500", "200-500", "201+", "500", "large", "enterprise", "250", "300", "400"], "score": 8 },
         { "match": ["11-50", "10-50", "medium", "growing", "25", "30", "40"], "score": 7 },
-        { "match": ["501+", "500+", "1000+", "thousands"], "score": 6 },
+        { "match": ["501+", "500+", "1000+", "thousands", "more than 500", "more than", "500+"], "score": 6 },
         { "match": ["1-10", "1-5", "less than 10", "small", "startup", "tiny", "solo", "just me"], "score": 3 }
       ],
       "default_score": 4

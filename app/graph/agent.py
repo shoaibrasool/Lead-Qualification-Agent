@@ -6,20 +6,15 @@ from langgraph.checkpoint.mongodb import MongoDBSaver
 from langgraph.graph import END, StateGraph, START
 
 from app.graph.edges import route_after_booking, route_after_collect, route_after_score, route_start
-from app.graph.nodes import collect_info_node, greet_node, score_lead_node
+from app.graph.nodes import (
+    book_demo_node,
+    collect_info_node,
+    end_node,
+    greet_node,
+    notify_slack_node,
+    score_lead_node,
+)
 from app.graph.state import LeadState
-
-
-def book_demo_node(state: LeadState) -> dict:
-    return {}
-
-
-def notify_slack_node(state: LeadState) -> dict:
-    return {}
-
-
-def end_node(state: LeadState) -> dict:
-    return {}
 
 
 def build_graph(checkpointer: Optional[MongoDBSaver]):
@@ -35,6 +30,7 @@ def build_graph(checkpointer: Optional[MongoDBSaver]):
     builder.add_conditional_edges(START, route_start, {
         "greet": "greet",
         "collect_info": "collect_info",
+        "book_demo": "book_demo",
     })
     builder.add_edge("greet", END)
     builder.add_conditional_edges("collect_info", route_after_collect, {

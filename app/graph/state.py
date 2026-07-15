@@ -16,3 +16,6 @@ class LeadState(TypedDict):
     booking_link: str | None
     complete: bool
     score_breakdown: list[dict] | None
+    pending_slots: list[dict] | None
+    pending_selected_slot: dict | None
+    booking_error: str | None
