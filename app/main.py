@@ -81,12 +81,12 @@ def create_app() -> FastAPI:
             has_state = False
 
         if has_state:
-            result = graph.invoke(
+            result = await graph.ainvoke(
                 {"messages": [HumanMessage(content=body.message)]},
                 config,
             )
         else:
-            result = graph.invoke(
+            result = await graph.ainvoke(
                 {
                     "messages": [HumanMessage(content=body.message)],
                     "session_id": body.session_id,
@@ -96,13 +96,20 @@ def create_app() -> FastAPI:
                     "turn_count": 0,
                     "booking_link": None,
                     "complete": False,
+                    "score_breakdown": None,
+                    "pending_slots": None,
+                    "pending_selected_slot": None,
+                    "booking_error": None,
                 },
                 config,
             )
 
         messages = result.get("messages", [])
         reply = messages[-1].content if messages else ""
-        done = result.get("outcome") is not None
+        outcome = result.get("outcome")
+        pending_slots = result.get("pending_slots")
+        pending_selected = result.get("pending_selected_slot")
+        done = outcome is not None and pending_slots is None and pending_selected is None
         booking_link = result.get("booking_link")
 
         return ChatResponse(
