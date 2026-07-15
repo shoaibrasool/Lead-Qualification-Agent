@@ -46,6 +46,12 @@ def build_slack_payload(state: dict) -> dict:
     company = fields.get("company_name") or fields.get("company") or "Unknown Company"
     job_title = fields.get("job_title") or fields.get("role") or "N/A"
     need = fields.get("need") or fields.get("pain_point") or "N/A"
+    name = fields.get("name") or fields.get("contact_name") or ""
+    email = fields.get("email") or fields.get("contact_email") or ""
+
+    contact_lines = [f"*Name:*\n{name}"] if name else []
+    if email:
+        contact_lines.append(f"*Email:*\n{email}")
 
     blocks = [
         {
@@ -69,14 +75,41 @@ def build_slack_payload(state: dict) -> dict:
                 {"type": "mrkdwn", "text": f"*Role:*\n{job_title}"},
             ],
         },
-        {
+    ]
+
+    if contact_lines:
+        blocks.append(
+            {
+                "type": "section",
+                "fields": [
+                    {"type": "mrkdwn", "text": line}
+                    for line in contact_lines
+                ],
+            }
+        )
+
+    extra_fields = []
+    for key, label in [("budget", "Budget"), ("timeline", "Timeline"), ("company_size", "Size")]:
+        val = fields.get(key)
+        if val and str(val).strip() not in ("", "not provided", "N/A"):
+            extra_fields.append(f"  \u2022 *{label}:* {val}")
+
+    if extra_fields:
+        blocks.append({
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"*Score Breakdown:*\n{_format_breakdown(state.get('score_breakdown'))}",
+                "text": "*Lead Details:*\n" + "\n".join(extra_fields),
             },
+        })
+
+    blocks.append({
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": f"*Score Breakdown:*\n{_format_breakdown(state.get('score_breakdown'))}",
         },
-    ]
+    })
 
     booking_link = state.get("booking_link")
     booking_error = state.get("booking_error")
@@ -104,6 +137,17 @@ def build_slack_payload(state: dict) -> dict:
                 "text": {
                     "type": "mrkdwn",
                     "text": f"⚠️ *Booking Error:*\n{booking_error}",
+                },
+            }
+        )
+    elif outcome == "maybe":
+        blocks.append({"type": "divider"})
+        blocks.append(
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "⚠️ *Action Required:* This lead needs follow-up. Reach out within 24 hours.",
                 },
             }
         )
