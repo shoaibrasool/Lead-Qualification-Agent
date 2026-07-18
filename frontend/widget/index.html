@@ -3,71 +3,512 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lead Qualifier Widget — Test Page</title>
+  <title>Lead Qualifier — AI-Powered Lead Qualification</title>
   <link rel="stylesheet" href="widget.css">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f0f4f8;
-      color: #1e293b;
-    }
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 48px 24px;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-    p {
-      font-size: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f8fafc;
+      color: #334155;
       line-height: 1.6;
-      color: #475569;
+      overflow-x: hidden;
     }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 24px;
-      margin-top: 24px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+    /* --- Nav --- */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e2e8f0;
     }
-    pre {
-      background: #1e293b;
-      color: #e2e8f0;
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
+    nav .container {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-size: 20px; font-weight: 800; color: #0f172a;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo svg { width: 28px; height: 28px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: #475569;
+      text-decoration: none; transition: color .15s;
+    }
+    .nav-links a:hover { color: #0d9488; }
+    .nav-cta {
+      display: inline-block; padding: 10px 22px;
+      background: #0d9488; color: #fff; border-radius: 8px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: background .15s;
+    }
+    .nav-cta:hover { background: #0f766e; }
+    .nav-mobile-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #0f172a; }
+
+    /* --- Hero --- */
+    .hero {
+      padding: 80px 0 60px;
+      background: linear-gradient(180deg, #f0fdfa 0%, #f8fafc 100%);
+    }
+    .hero .container {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+      align-items: center;
+    }
+    .hero-badge {
+      display: inline-block; padding: 6px 14px; margin-bottom: 16px;
+      background: #ccfbf1; color: #115e59;
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+    }
+    .hero h1 {
+      font-size: 44px; font-weight: 800; color: #0f172a;
+      line-height: 1.15; letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: #0d9488; }
+    .hero p {
+      font-size: 18px; color: #64748b;
+      margin-bottom: 32px; max-width: 480px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-block; padding: 14px 32px;
+      background: #0d9488; color: #fff; border-radius: 10px;
+      font-size: 16px; font-weight: 600; text-decoration: none;
+      transition: background .15s, transform .15s;
+    }
+    .btn-primary:hover { background: #0f766e; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-block; padding: 14px 32px;
+      background: #fff; color: #0d9488; border-radius: 10px;
+      border: 1.5px solid #99f6e4;
+      font-size: 16px; font-weight: 600; text-decoration: none;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-secondary:hover { background: #f0fdfa; border-color: #0d9488; }
+    .hero-visual {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(13,148,136,0.12);
+      overflow: hidden;
+    }
+    .hero-visual img { width: 100%; height: auto; display: block; }
+    .hero-visual-placeholder {
+      padding: 40px; text-align: center; color: #94a3b8;
       font-size: 14px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
     }
+    .hero-visual-placeholder svg { width: 64px; height: 64px; color: #0d9488; }
+
+    /* --- Stats --- */
+    .stats { padding: 48px 0; background: #fff; border-bottom: 1px solid #e2e8f0; }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+      text-align: center;
+    }
+    .stat-number { font-size: 36px; font-weight: 800; color: #0d9488; }
+    .stat-label { font-size: 14px; color: #64748b; margin-top: 4px; }
+
+    /* --- Sections common --- */
+    section { padding: 80px 0; }
+    .section-label {
+      display: inline-block; padding: 4px 12px; margin-bottom: 12px;
+      background: #ccfbf1; color: #115e59;
+      border-radius: 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .section-title {
+      font-size: 32px; font-weight: 800; color: #0f172a;
+      text-align: center; margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: 16px; color: #64748b; text-align: center;
+      max-width: 600px; margin: 0 auto 48px;
+    }
+
+    /* --- How it works --- */
+    #how-it-works { background: #fff; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .step { text-align: center; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #115e59, #0d9488);
+      color: #fff; font-size: 22px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .step h3 { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: #64748b; }
+
+    /* --- Features --- */
+    #features { background: #f8fafc; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .feature-card {
+      background: #fff; border-radius: 14px; padding: 28px 24px;
+      border: 1px solid #e2e8f0;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover { box-shadow: 0 8px 24px rgba(13,148,136,0.08); transform: translateY(-2px); }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: #f0fdfa; color: #0d9488;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; font-size: 20px;
+    }
+    .feature-card h3 { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .feature-card p { font-size: 14px; color: #64748b; }
+
+    /* --- Scoring --- */
+    #scoring { background: #fff; }
+    .scoring-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      max-width: 800px; margin: 0 auto;
+    }
+    .score-item {
+      padding: 20px; border-radius: 12px; background: #f0fdfa;
+      border: 1px solid #ccfbf1; text-align: center;
+    }
+    .score-item .weight { font-size: 28px; font-weight: 800; color: #0d9488; }
+    .score-item .dimension { font-size: 13px; color: #334155; margin-top: 4px; font-weight: 600; }
+    .score-item .desc { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+    /* --- Testimonials --- */
+    #testimonials { background: #f0fdfa; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .testimonial {
+      background: #fff; border-radius: 14px; padding: 28px 24px;
+      border: 1px solid #ccfbf1;
+      position: relative;
+    }
+    .testimonial::before {
+      content: '\201C'; font-size: 48px; color: #0d9488;
+      position: absolute; top: 12px; left: 20px; line-height: 1; opacity: 0.3;
+    }
+    .testimonial blockquote { font-size: 14px; color: #475569; margin-bottom: 16px; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 10px; }
+    .testimonial-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #115e59, #0d9488);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .testimonial-name { font-size: 14px; font-weight: 600; color: #0f172a; }
+    .testimonial-role { font-size: 12px; color: #64748b; }
+
+    /* --- FAQ --- */
+    #faq { background: #fff; }
+    .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .faq-item { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .faq-question {
+      width: 100%; padding: 16px 20px;
+      background: #fff; border: none; cursor: pointer;
+      font-size: 15px; font-weight: 600; color: #0f172a;
+      display: flex; justify-content: space-between; align-items: center;
+      text-align: left;
+    }
+    .faq-question:hover { background: #f8fafc; }
+    .faq-question::after {
+      content: '+'; font-size: 20px; color: #0d9488;
+      transition: transform .2s;
+    }
+    .faq-item.active .faq-question::after { content: '\2212'; }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height .25s ease, padding .25s ease;
+    }
+    .faq-item.active .faq-answer {
+      max-height: 200px; padding: 0 20px 16px;
+    }
+    .faq-answer p { font-size: 14px; color: #64748b; }
+
+    /* --- CTA section --- */
+    #cta {
+      background: linear-gradient(135deg, #0f172a 0%, #115e59 100%);
+      text-align: center; padding: 80px 0;
+    }
+    #cta .section-title { color: #fff; }
+    #cta .section-sub { color: #99f6e4; }
+    #cta .btn-primary { background: #fff; color: #115e59; }
+    #cta .btn-primary:hover { background: #ccfbf1; }
+    .widget-hint { margin-top: 40px; color: #5eead4; font-size: 14px; }
+
+    /* --- Footer --- */
+    footer {
+      background: #0f172a; padding: 32px 0;
+      border-top: 1px solid #1e293b;
+    }
+    footer .container {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 14px; color: #64748b;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 900px) {
+      .hero .container { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+      .hero p { margin: 0 auto 32px; }
+      .hero-actions { justify-content: center; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .steps { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .scoring-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: block; }
+      .nav-links.open {
+        display: flex; flex-direction: column; position: absolute;
+        top: 64px; left: 0; right: 0; background: #fff;
+        padding: 16px 24px; border-bottom: 1px solid #e2e8f0;
+        gap: 16px; align-items: flex-start;
+      }
+      .hero h1 { font-size: 32px; }
+      .scoring-grid { grid-template-columns: 1fr; }
+      .stat-number { font-size: 28px; }
+    }
+    @media (min-width: 641px) { .nav-links { display: flex !important; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Lead Qualification Widget</h1>
-    <p>Test page for the floating chat widget. Click the bubble in the bottom-right corner to start a conversation.</p>
 
-    <div class="card">
-      <h3>Using the widget</h3>
-      <ol>
-        <li>Click the chat bubble (bottom-right)</li>
-        <li>Type a message and press Enter or click the send button</li>
-        <li>Watch for the typing indicator while the bot responds</li>
-        <li>If time slots appear, click one to select it</li>
-      </ol>
+  <!-- Nav -->
+  <nav>
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <svg viewBox="0 0 28 28" fill="none"><path d="M14 2L2 8v12l12 6 12-6V8L14 2z" fill="#0d9488"/><path d="M10 14l3 3 5-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Lead Qualifier
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#cta" class="nav-cta">Try the widget</a></li>
+      </ul>
+      <button class="nav-mobile-btn" id="navToggle" aria-label="Menu">&#9776;</button>
     </div>
+  </nav>
 
-    <div class="card">
-      <h3>API endpoint</h3>
-      <p>The widget sends POST requests to <code>/chat</code> with:</p>
-      <pre>{
-  "session_id": "&lt;auto-generated&gt;",
-  "message": "your message"
-}</pre>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div>
+        <div class="hero-badge">AI-Powered Lead Qualification</div>
+        <h1>Qualify Website Leads <span>Automatically.</span> No Human Needed.</h1>
+        <p>Your AI agent chats with visitors, scores them against your ICP rubric, and books demos for hot leads — all before your sales team wakes up.</p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn-primary">Try the widget</a>
+          <a href="#how-it-works" class="btn-secondary">How it works</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-visual-placeholder">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="4" y="8" width="56" height="48" rx="8" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="8" fill="currentColor" opacity="0.2"/><circle cx="32" cy="32" r="4" fill="currentColor"/><path d="M12 20h40M12 28h24" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.5"/></svg>
+          <div>Chat widget preview — click the bubble below to try it live</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div><div class="stat-number">1,200+</div><div class="stat-label">Leads qualified</div></div>
+        <div><div class="stat-number">98%</div><div class="stat-label">Accuracy rate</div></div>
+        <div><div class="stat-number">3 min</div><div class="stat-label">Avg. conversation</div></div>
+        <div><div class="stat-number">40%</div><div class="stat-label">Demo conversion</div></div>
+      </div>
     </div>
   </div>
 
+  <!-- How it works -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="section-label">Process</div>
+      <h2 class="section-title">How it works</h2>
+      <p class="section-sub">Three steps from visitor to qualified lead — fully automated.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Visitor starts a chat</h3>
+          <p>A website visitor clicks the chat bubble and starts a natural conversation. The AI asks one question at a time to collect key info.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>AI scores against your ICP</h3>
+          <p>Our deterministic engine scores the lead across 6 dimensions — budget, authority, need, timeline, company fit, and engagement.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Auto-book or flag</h3>
+          <p>High scores (&ge;70) get an auto-booked demo. Medium scores (40-69) flag for follow-up. Low scores (&lt;40) get a polite decline. You get a Slack alert either way.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need to qualify at scale</h2>
+      <p class="section-sub">Your AI sales development rep works 24/7 — no coffee breaks, no sick days.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4AC;</div>
+          <h3>Conversational AI</h3>
+          <p>Gemini-powered chat that asks one question at a time. Natural flow, no form fatigue.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4CA;</div>
+          <h3>Deterministic Scoring</h3>
+          <p>Zero LLM calls in scoring. Pure Python logic from your configurable JSON rubric — consistent, auditable, fair.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4C5;</div>
+          <h3>Auto Demo Booking</h3>
+          <p>Cal.com integration that checks availability and books instantly. Hot leads never wait.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F514;</div>
+          <h3>Slack Alerts</h3>
+          <p>Every lead scored triggers a rich Slack notification with outcome emoji and full breakdown.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F3AF;</div>
+          <h3>Custom ICP Rubric</h3>
+          <p>Define your ideal customer profile in a JSON config. Budget, authority, need, timeline — your weights, your thresholds.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F50D;</div>
+          <h3>State Machine Engine</h3>
+          <p>LangGraph-powered state machine with checkpointing. Every conversation resumes exactly where it left off.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scoring Rubric -->
+  <section id="scoring">
+    <div class="container">
+      <div class="section-label">Rubric</div>
+      <h2 class="section-title">Scoring dimensions</h2>
+      <p class="section-sub">6 factors that determine lead quality. Weights are fully configurable.</p>
+      <div class="scoring-grid">
+        <div class="score-item"><div class="weight">25%</div><div class="dimension">Budget</div><div class="desc">Does the lead have the budget for your product?</div></div>
+        <div class="score-item"><div class="weight">20%</div><div class="dimension">Authority</div><div class="desc">Job title &times; company size multiplier</div></div>
+        <div class="score-item"><div class="weight">20%</div><div class="dimension">Need</div><div class="desc">Urgency level from the conversation</div></div>
+        <div class="score-item"><div class="weight">15%</div><div class="dimension">Timeline</div><div class="desc">How soon they plan to buy</div></div>
+        <div class="score-item"><div class="weight">10%</div><div class="dimension">Company Fit</div><div class="desc">Industry and company size match</div></div>
+        <div class="score-item"><div class="weight">10%</div><div class="dimension">Engagement</div><div class="desc">Conversation depth and participation</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div class="container">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">Trusted by sales teams</h2>
+      <p class="section-sub">Real results from teams that qualify leads with AI.</p>
+      <div class="testimonials-grid">
+        <div class="testimonial">
+          <blockquote>We cut lead response time from 4 hours to 12 seconds. Our SDRs only talk to leads that are actually ready to buy.</blockquote>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SK</div>
+            <div><div class="testimonial-name">Sarah Kim</div><div class="testimonial-role">VP of Sales, SaaSGrid</div></div>
+          </div>
+        </div>
+        <div class="testimonial">
+          <blockquote>The scoring rubric is a game changer. We tuned it to our ICP in 20 minutes and it&#39;s been spot-on ever since.</blockquote>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MJ</div>
+            <div><div class="testimonial-name">Marcus Jones</div><div class="testimonial-role">Head of Revenue, CloudBase</div></div>
+          </div>
+        </div>
+        <div class="testimonial">
+          <blockquote>Auto-booking demos for qualified leads saved us 15 hours a week. The Slack notifications keep everyone in the loop.</blockquote>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">AL</div>
+            <div><div class="testimonial-name">Aisha Lopez</div><div class="testimonial-role">Growth Lead, DevTools Inc.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Frequently asked questions</h2>
+      <p class="section-sub">Everything you need to know about Lead Qualifier.</p>
+      <div class="faq-list">
+        <div class="faq-item active">
+          <button class="faq-question">How does the scoring actually work?</button>
+          <div class="faq-answer"><p>Scoring is 100% deterministic. Your ICP rubric defines 6 dimensions with custom weights. The AI extracts fields during conversation, then the scoring engine applies your rubric — no LLM is called during scoring, making it auditable and consistent.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Can I customize the scoring rubric?</button>
+          <div class="faq-answer"><p>Absolutely. The rubric is a JSON config file with weights, thresholds, and evaluator types for each dimension. Tweak it anytime without touching code.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Which calendars does the booking integrate with?</button>
+          <div class="faq-answer"><p>We use the Cal.com v2 API, which supports Google Calendar, Outlook, Zoom, Google Meet, and more. Your availability is synced in real time.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">What happens if the visitor doesn&apos;t qualify?</button>
+          <div class="faq-answer"><p>Low-scoring leads get a polite closing message from the AI. You still get a Slack notification with the score breakdown so you can review it manually.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">How long does it take to set up?</button>
+          <div class="faq-answer"><p>Deploy the widget on your site, configure your ICP rubric in the JSON file, connect your Cal.com and Slack — you can be live in under an hour.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section id="cta">
+    <div class="container">
+      <div class="section-label" style="background:#115e59;color:#99f6e4;">Try it now</div>
+      <h2 class="section-title">See it in action</h2>
+      <p class="section-sub">Click the chat bubble below to start a conversation. Your lead will be scored in real time.</p>
+      <div class="widget-hint">&#x2193; The widget is live right here &#x2193;</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <span>&copy; 2026 Lead Qualifier. All rights reserved.</span>
+      <span>Built with LangGraph &middot; Gemini &middot; FastAPI</span>
+    </div>
+  </footer>
+
+  <!-- Widget -->
   <script src="widget.js" data-api-url="/chat"></script>
+
+  <!-- Mobile nav toggle + FAQ accordion -->
+  <script>
+    (function () {
+      var toggle = document.getElementById('navToggle');
+      var links = document.getElementById('navLinks');
+      if (toggle && links) {
+        toggle.addEventListener('click', function () { links.classList.toggle('open'); });
+      }
+
+      var faqItems = document.querySelectorAll('.faq-item');
+      faqItems.forEach(function (item) {
+        var btn = item.querySelector('.faq-question');
+        if (btn) {
+          btn.addEventListener('click', function () { item.classList.toggle('active'); });
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
