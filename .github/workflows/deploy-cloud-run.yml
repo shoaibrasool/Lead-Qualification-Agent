@@ -1,0 +1,39 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  SERVICE_NAME: lead-agent
+  REGION: us-central1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy $SERVICE_NAME \
+            --region $REGION \
+            --source . \
+            --allow-unauthenticated \
+            --cpu-boost \
+            --memory=512Mi \
+            --timeout=300 \
+            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},GEMINI_MODEL=${{ secrets.GEMINI_MODEL }},CALCOM_API_KEY=${{ secrets.CALCOM_API_KEY }},CALCOM_EVENT_TYPE_ID=${{ secrets.CALCOM_EVENT_TYPE_ID }},SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }},MONGODB_CONNECTION_STRING=${{ secrets.MONGODB_CONNECTION_STRING }},AUTO_BOOK_THRESHOLD=${{ vars.AUTO_BOOK_THRESHOLD || '70' }},FLAG_FOLLOWUP_THRESHOLD=${{ vars.FLAG_FOLLOWUP_THRESHOLD || '40' }},MAX_CONVERSATION_TURNS=${{ vars.MAX_CONVERSATION_TURNS || '8' }},CORS_ORIGINS=${{ vars.CORS_ORIGINS || 'https://yourdomain.com' }},APP_ENV=prod,DEBUG=false,LOG_LEVEL=INFO"
