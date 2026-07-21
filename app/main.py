@@ -17,6 +17,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from langgraph.checkpoint.mongodb import MongoDBSaver
 
@@ -69,6 +70,10 @@ def create_app() -> FastAPI:
     widget_dir = Path(__file__).resolve().parent.parent / "frontend" / "widget"
     if widget_dir.is_dir():
         app.mount("/widget", StaticFiles(directory=str(widget_dir), html=True), name="widget")
+
+        @app.get("/")
+        async def serve_widget():
+            return HTMLResponse((widget_dir / "index.html").read_text())
 
     return app
 
