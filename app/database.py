@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 _client: MongoClient | None = None
 
-_TLS_PARAMS = "tls=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true&tlsInsecure=true"
+_TLS_PARAMS = "tlsInsecure=true"
 
 
 def get_client() -> MongoClient:
