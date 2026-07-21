@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import ssl
 
 from pymongo import MongoClient
 
@@ -11,6 +12,14 @@ logger = logging.getLogger(__name__)
 _client: MongoClient | None = None
 
 
+def _make_ssl_context() -> ssl.SSLContext:
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    return ctx
+
+
 def get_client() -> MongoClient:
     global _client
     if _client is None:
@@ -18,7 +27,8 @@ def get_client() -> MongoClient:
         _client = MongoClient(
             settings.mongodb_connection_string.get_secret_value(),
             serverSelectionTimeoutMS=10000,
-            tlsInsecure=True,
+            tls=True,
+            ssl_context=_make_ssl_context(),
         )
     return _client
 
