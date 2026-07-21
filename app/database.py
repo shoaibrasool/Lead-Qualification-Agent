@@ -18,8 +18,7 @@ def get_client() -> MongoClient:
         _client = MongoClient(
             settings.mongodb_connection_string.get_secret_value(),
             serverSelectionTimeoutMS=10000,
-            tls=True,
-            tlsAllowInvalidCertificates=True,
+            tlsInsecure=True,
         )
     return _client
 
